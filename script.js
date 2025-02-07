@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Funzione per formattare il numero con separatore delle migliaia (apostrofo)
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    }
+  
     // Pre-carica tutte le immagini
     const imagePaths = [
       'images/start.jpg',
@@ -14,14 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
       img.src = path;
     });
   
-    // Ottieni i riferimenti agli elementi nel DOM
+    // Riferimenti agli elementi DOM
     const nextButton  = document.getElementById('nextButton');
+    const prevButton  = document.getElementById('prevButton'); // Nuovo pulsante "Indietro"
     const stepDisplay = document.getElementById('stepDisplay');
     const title       = document.getElementById('title');
     const description = document.getElementById('description');
   
     // Definizione degli step intermedi
-    // Per "Amore che provo per te" l'esponente sarà dinamico, quindi lo impostiamo a 0 (o lasciamo placeholder)
     const steps = [
       {
         label: 'Cellule nel corpo umano',
@@ -29,19 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
         image: 'images/cellule.jpg'
       },
       {
-        label: 'Granelli di sabbia nel mondo',
-        exponent: 20,  // approssimativamente 10^20
-        image: 'images/sabbia.jpg'
-      },
-      {
         label: 'Stelle nell\'universo',
-        exponent: 32,  // approssimativamente 10^32
+        exponent: 23,  // approssimativamente 10^23
         image: 'images/stelle.jpg'
       },
       {
-        label: 'Il numero primo più grande',
-        exponent: 24862048,  // valore simbolico
-        image: 'images/prime.jpg'
+        label: 'Granelli di sabbia nel mondo',
+        exponent: 37,  // approssimativamente 10^37
+        image: 'images/sabbia.jpg'
       },
       {
         label: 'Amore che provo per te',
@@ -54,13 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
          - currentStep da 0 a steps.length-1 → step intermedi
          - currentStep = steps.length → stato finale (immagine di end)
          - currentStep > steps.length → reset
-       Inizialmente, mostriamo l'immagine di start e impostiamo currentStep = 0.
+       Inizialmente mostriamo l'immagine di start e impostiamo currentStep = 0.
+       NOTA: currentStep indica l'indice del passo *successivo* da mostrare.
     */
     let currentStep = 0;
-    // Variabile per gestire l'intervallo per l'esponente dinamico
     let dynamicInterval = null;
   
-    // Al caricamento della pagina, mostra subito l'immagine di start
+    // Mostra subito l'immagine di start al caricamento della pagina
     showSpecialStep(
       'images/start.jpg',
       'Quanto ti amo?',
@@ -68,8 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Successivo'
     );
   
+    // Gestione del pulsante "Avanti"
     nextButton.addEventListener('click', () => {
-      // Se è in corso un'animazione, usa fade-out prima di aggiornare
+      // Applica animazione fade-out se necessario
       if (stepDisplay.classList.contains('fade-in')) {
         stepDisplay.classList.remove('fade-in');
         stepDisplay.classList.add('fade-out');
@@ -82,8 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   
+    // Gestione del pulsante "Indietro"
+    prevButton.addEventListener('click', () => {
+      prevStep();
+    });
+  
     function updateStep() {
-      // Se c'era un intervallo per l'esponente dinamico, lo interrompiamo
+      // Ferma eventuali aggiornamenti dinamici
       if (dynamicInterval) {
         clearInterval(dynamicInterval);
         dynamicInterval = null;
@@ -95,7 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStep++;
         if (currentStep === steps.length) {
           nextButton.textContent = 'Fine';
+        } else {
+          nextButton.textContent = 'Successivo';
         }
+        updateButtonVisibility();
       } else if (currentStep === steps.length) {
         // Stato finale: mostra l'immagine "end"
         showSpecialStep(
@@ -105,14 +114,39 @@ document.addEventListener('DOMContentLoaded', () => {
           'Ricomincia'
         );
         currentStep++;
+        prevButton.style.display = 'none';
       } else {
         // Reset della sequenza
         resetSequence();
       }
     }
   
+    function prevStep() {
+      // Se siamo già oltre il primo step intermedio, possiamo tornare indietro
+      if (currentStep > 1) {
+        if (dynamicInterval) {
+          clearInterval(dynamicInterval);
+          dynamicInterval = null;
+        }
+        // Poiché currentStep è incrementato dopo aver mostrato uno step, per tornare indietro sottraiamo 2
+        currentStep -= 2;
+        updateStep();
+      }
+    }
+  
+    function updateButtonVisibility() {
+      // Il passo attualmente visualizzato è (currentStep - 1)
+      const displayedIndex = currentStep - 1;
+      // Mostra il pulsante "Indietro" solo se siamo oltre il primo step intermedio
+      if (displayedIndex > 0 && displayedIndex < steps.length - 1) {
+        prevButton.style.display = 'inline-block';
+      } else {
+        prevButton.style.display = 'none';
+      }
+    }
+  
     function showStep(step) {
-      // Se è presente un intervallo per l'esponente dinamico, lo fermiamo
+      // Ferma eventuali aggiornamenti dinamici precedenti
       if (dynamicInterval) {
         clearInterval(dynamicInterval);
         dynamicInterval = null;
@@ -126,19 +160,17 @@ document.addEventListener('DOMContentLoaded', () => {
   
       // Se lo step è quello dinamico, aggiorna l'esponente ogni secondo
       if (step.label === 'Amore che provo per te') {
-        // Funzione per aggiornare l'esponente dinamico in base al tempo trascorso
         function updateDynamicExponent() {
-          // Data di riferimento: 29/08/2024 ore 12:00 (in formato ISO)
+          // Data di riferimento: 29/08/2024 ore 12:00 (formato ISO)
           const targetDate = new Date('2024-08-29T12:00:00');
           const now = new Date();
-          // Calcola la differenza in secondi
           const diffSeconds = Math.floor((now - targetDate) / 1000);
-          stepText.innerHTML = `<strong>${step.label}:</strong> 10<sup>${diffSeconds}</sup>`;
+          stepText.innerHTML = `<strong>${step.label}:</strong> 10<sup>${formatNumber(diffSeconds)}</sup>`;
         }
         updateDynamicExponent(); // Imposta subito il valore iniziale
         dynamicInterval = setInterval(updateDynamicExponent, 1000);
       } else {
-        stepText.innerHTML = `<strong>${step.label}:</strong> 10<sup>${step.exponent}</sup>`;
+        stepText.innerHTML = `<strong>${step.label}:</strong> 10<sup>${formatNumber(step.exponent)}</sup>`;
       }
       stepData.appendChild(stepText);
   
@@ -158,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function showSpecialStep(imagePath, newTitle, newDescription, newButtonText) {
-      // Se esiste un intervallo per l'esponente dinamico, lo fermiamo
+      // Ferma eventuali intervalli dinamici
       if (dynamicInterval) {
         clearInterval(dynamicInterval);
         dynamicInterval = null;
@@ -179,14 +211,14 @@ document.addEventListener('DOMContentLoaded', () => {
       stepDisplay.appendChild(specialData);
       stepDisplay.classList.add('fade-in');
   
-      // Aggiorna titolo, descrizione e testo del bottone
       title.textContent = newTitle;
       description.textContent = newDescription;
       nextButton.textContent = newButtonText;
+      // Durante gli step speciali (start ed end) nascondiamo il pulsante "Indietro"
+      prevButton.style.display = 'none';
     }
   
     function resetSequence() {
-      // Se esiste un intervallo per l'esponente dinamico, lo fermiamo
       if (dynamicInterval) {
         clearInterval(dynamicInterval);
         dynamicInterval = null;
@@ -196,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       title.textContent = 'Quanto ti amo?';
       description.innerHTML = 'Ho provato a quantificarlo, ed è stato un lungo viaggio.<br>Ti va di percorrere le tappe più importanti con me?';
       nextButton.textContent = 'Inizia il viaggio!';
-      // Mostra nuovamente l'immagine di start
+      prevButton.style.display = 'none';
       showSpecialStep(
         'images/start.jpg',
         'Quanto ti amo?',
