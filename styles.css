@@ -48,17 +48,30 @@
   }
   
   /* Area dove verranno visualizzati i dati degli step */
+  /* Altezza fissa e centrato con Flexbox */
   .step-display {
     margin: 20px 0;
-    min-height: 150px;
+    height: 350px;         /* Altezza fissa */
+    overflow: hidden;      
     opacity: 0;
     transition: opacity 0.8s ease;
     color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   /* Contenitore per ciascun step */
+  /* Imposta la larghezza e l'altezza al 100% e nascondi eventuali overflow */
   .step-data {
     animation: fadeIn 0.8s forwards;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
   
   /* Stile per il testo dello step */
@@ -66,6 +79,7 @@
     font-size: 2rem;
     margin-bottom: 20px;
     color: #fff;
+    text-align: center;
   }
   
   /* Stile per l'immagine associata (uguale per tutti gli step, inclusi start ed end) */
@@ -74,7 +88,8 @@
   }
   
   .step-image img {
-    max-width: 300px;  /* Limita la larghezza per uniformità */
+    max-width: 300px;      /* Larghezza massima uniforme */
+    max-height: 300px;     /* Limita anche l'altezza per evitare che immagini diverse creino variazioni */
     width: 100%;
     height: auto;
     border-radius: 10px;
