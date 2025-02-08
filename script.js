@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Funzione per formattare il numero con separatore delle migliaia (apostrofo)
+  // Funzione per formattare un numero con separatore delle migliaia (apostrofo)
   function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
   }
 
-  const THRESHOLD_DIGITS = 25; // Soglia per mostrare il numero per intero oppure un messaggio personalizzato
+  const THRESHOLD_DIGITS = 25; // Soglia per decidere se mostrare il numero completo o un messaggio personalizzato
 
   // Pre-carica le immagini
   const imagePaths = [
@@ -36,13 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
          • content: il testo completo da mostrare all'apertura:
            "Ho provato a quantificarlo, ed è stato un lungo viaggio.
             Ti va di percorrere le tappe più importanti con me?"
-     - Gli step successivi (indice 1,2,3,...) sono gli step numerici.
-       Per ciascuno definisci:
+       - Gli step successivi (indice 1,2,3,...) sono quelli numerici.
+         Per ciascuno definisci:
          • label: (usato anche per il prefix)
-         • exponent: il valore numerico (oppure 0 per lo step dinamico "amore che provo per te")
+         • exponent: il valore numerico (il numero di zeri)
          • image: l'immagine da usare
-         • prefix: il testo da mostrare prima della notazione scientifica
-         • bigMessage (opzionale): il messaggio personalizzato da mostrare se il numero supera la soglia
+         • coefficient (opzionale): se definito e diverso da 1, verrà visualizzato come il moltiplicatore
+         • prefix: il testo da visualizzare PRIMA della notazione scientifica
+         • bigMessage (opzionale): il messaggio da visualizzare se il numero supera la soglia
   */
   const steps = [
     {
@@ -53,30 +54,63 @@ document.addEventListener('DOMContentLoaded', () => {
       content: "Ho provato a quantificarlo, ed è stato un lungo viaggio.<br>Ti va di percorrere le tappe più importanti con me?"
     },
     {
+      label: 'luce',
+      exponent: 8,
+      image: 'images/luce.jpg',
+      coefficient: 3,  // Se omesso o 1 non verrà visualizzato
+      prefix: "Ti amo più di quanto sia veloce la luce in m/s: "
+    },
+    {
+      label: 'persone',
+      exponent: 9,
+      image: 'images/persone.jpg',
+      coefficient: 8,  // Se omesso o 1 non verrà visualizzato
+      prefix: "Ti amo più di quanto siano le persone sulla Terra: "
+    },
+    {
       label: 'cellule nel corpo umano',
       exponent: 13,
       image: 'images/cellule.jpg',
-      prefix: "Ti amo più di quante sono le cellule nel corpo umano: "
+      coefficient: 6,  // Se omesso o 1 non verrà visualizzato
+      prefix: "Ti amo più di quante sono le cellule che compongono un nostro abbraccio: "
     },
     {
-      label: 'stelle nell\'universo',
-      exponent: 23,
-      image: 'images/stelle.jpg',
-      prefix: "Ti amo più di quante sono le stelle nell'universo: "
+      label: 'big bang',
+      exponent: 17,
+      image: 'images/big-bang.jpg',
+      coefficient: 4,
+      prefix: "Ti amo più di quanti sono i secondi passati dal momento del Big Bang: "
     },
     {
       label: 'granelli di sabbia nel mondo',
-      exponent: 37,
+      exponent: 22,
       image: 'images/sabbia.jpg',
-      prefix: "Ti amo più di quanti sono i granelli di sabbia nel mondo: ",
-      bigMessage: "Se dovessi scrivere il numero su questo schermo, mi sa che straborderebbe un po'!"
+      coefficient: 1,
+      prefix: "Ti amo più di quanti sono i granelli di sabbia sulla Terra: ",
+    },
+    {
+      label: 'diametro universo osservabile',
+      exponent: 26,
+      image: 'images/stelle.jpg',
+      coefficient: 5,
+      prefix: "Ti amo più di quanto sia il raggio dell'universo osservabile in m: ",
+      bigMessage:"I numeri adesso non ci stanno più nello schermo!"
+    },
+    {
+      label: 'atomi nell\'universo',
+      exponent: 82,
+      image: 'images/atomi.jpg',
+      coefficient: 1,
+      prefix: "Ti amo più di quanti sono gli atomi nell'universo: ",
+      bigMessage: "Se lo scrivessi a schermo sarebbe lungo come una chitarra acustica!"
     },
     {
       label: 'amore che provo per te',
-      exponent: 0, // Dinamico
+      exponent: 0, // Dinamico: l'esponente sarà calcolato in base al tempo
       image: 'images/amore.jpg',
+      coefficient: 3, // Esempio: se impostato a 3, verrà visualizzato "3 x 10^(...)"
       prefix: "Ecco esattamente quanto ti amo: ",
-      bigMessage: "È davvero tanto, non trovi? Se lo scrivessi, arriverebbe da Parma a Milano!"
+      bigMessage: "È davvero tanto, non trovi? Se lo scrivessi, sarebbe lungo come la strada da Milano a Parma!"
     }
   ];
 
@@ -84,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStep = 0;
   let dynamicInterval = null;
 
-  // Appena carica la web app, mostra subito lo step 0 (merged iniziale)
+  // Appena la web app si apre, mostra subito lo step 0 (merged iniziale)
   showStep(steps[currentStep]);
   currentStep++; // Al primo clic su "Successivo" verrà caricato lo step 1
 
@@ -96,29 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
     prevStep();
   });
 
-  // Funzione per aggiornare il background con effetto fade (solo opacità)
-  // function updateBackground(newImage, callback) {
-  //   bg.classList.add('fade-out');
-  //   setTimeout(() => {
-  //     bg.style.backgroundImage = `url(${newImage})`;
-  //     bg.classList.remove('fade-out');
-  //     bg.classList.add('fade-in');
-  //     setTimeout(() => {
-  //       bg.classList.remove('fade-in');
-  //       if (callback) callback();
-  //     }, 400);
-  //   }, 400);
-  // }
+  // Funzione per aggiornare il background con effetto fade (qui puoi decidere se rimuovere la transizione)
+  // Se vuoi nessuna animazione, usa la versione semplificata.
   function updateBackground(newImage, callback) {
     bg.style.backgroundImage = `url(${newImage})`;
     if (callback) callback();
   }
-  
 
   // Funzione per creare il contenuto dello step
   // Se step.exponent è null, usa step.content direttamente.
-  // Altrimenti, usa il prefisso fornito e genera la notazione scientifica e il numero per intero
-  // Il "secondo rigo" viene racchiuso in un <span> con margin-top:5px per creare spaziatura.
+  // Altrimenti, se viene definito step.coefficient e diverso da 1, lo mostra.
+  // Il "secondo rigo" (il numero completo o il messaggio) viene racchiuso in un <span> con margin-top:25px.
   function createStepContent(step, prefix) {
     const stepData = document.createElement('div');
     stepData.classList.add('step-data');
@@ -129,14 +151,17 @@ document.addEventListener('DOMContentLoaded', () => {
       // Step iniziale: usa il contenuto specificato
       stepText.innerHTML = `${step.content}`;
     } else if (step.label === 'amore che provo per te') {
-      // Step dinamico: aggiorna l'esponente ogni secondo
+      // Step dinamico: l'esponente viene calcolato in base al tempo
       function updateDynamicExponent() {
         const targetDate = new Date('2024-08-29T12:00:00');
         const now = new Date();
         const diffSeconds = Math.floor((now - targetDate) / 1000);
+        let coeff = (step.coefficient && step.coefficient != 1) ? formatNumber(step.coefficient) + " x " : "";
         if ((diffSeconds + 1) <= THRESHOLD_DIGITS) {
-          let fullNumber = "1" + "0".repeat(diffSeconds);
-          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br><span style="display:block; margin-top:25px;">${formatNumber(fullNumber)}</span>`;
+          let fullNumber = (step.coefficient && step.coefficient != 1)
+                           ? step.coefficient.toString() + "0".repeat(diffSeconds)
+                           : "1" + "0".repeat(diffSeconds);
+          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br><span style="display:block; margin-top:25px;">${coeff}${formatNumber(fullNumber)}</span>`;
         } else {
           let msg = step.bigMessage ? step.bigMessage : "Se dovessi scrivere il numero, occuperebbe un'intera pagina di testo.";
           stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br><span style="display:block; margin-top:25px;">${msg}</span>`;
@@ -145,12 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDynamicExponent();
       dynamicInterval = setInterval(updateDynamicExponent, 1000);
     } else {
+      let coeffStr = "";
+      if (step.coefficient && step.coefficient != 1) {
+        coeffStr = formatNumber(step.coefficient) + " x ";
+      }
       if ((step.exponent + 1) <= THRESHOLD_DIGITS) {
-        let fullNumber = "1" + "0".repeat(step.exponent);
-        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${formatNumber(fullNumber)}</span>`;
+        let fullNumber = (step.coefficient && step.coefficient != 1)
+                         ? step.coefficient.toString() + "0".repeat(step.exponent)
+                         : "1" + "0".repeat(step.exponent);
+        stepText.innerHTML = `<strong>${prefix}</strong>${coeffStr}10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${formatNumber(fullNumber)}</span>`;
       } else {
         let msg = step.bigMessage ? step.bigMessage : "Se dovessi scrivere il numero, occuperebbe un'intera pagina di testo.";
-        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${msg}</span>`;
+        stepText.innerHTML = `<strong>${prefix}</strong>${coeffStr}10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${msg}</span>`;
       }
     }
     stepData.appendChild(stepText);
@@ -167,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (step.image) {
       updateBackground(step.image, function() {
-        // Per gli step normali, usa il prefix definito nello step
         let prefix = step.prefix || "";
         createStepContent(step, prefix);
       });
@@ -180,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Funzione per mostrare lo step speciale finale
   // In questo step il contenuto interno mostra:
-  // Nel box: "È stato un bel viaggio!" a capo "Il mio amore per te cresce ogni giorno, ogni secondo."
+  // "È stato un bel viaggio!" a capo "Il mio amore per te cresce ogni giorno, ogni secondo."
   function showSpecialStep(imagePath, specialHeader, specialSubheader, newButtonText) {
     if (dynamicInterval) {
       clearInterval(dynamicInterval);
@@ -196,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const specialText = document.createElement('div');
       specialText.classList.add('step-text');
-      specialText.innerHTML = `<strong>${specialHeader}</strong><br><span style="display:block; margin-top:5px;">${specialSubheader}</span>`;
+      specialText.innerHTML = `<strong>${specialHeader}</strong><br><span style="display:block; margin-top:25px;">${specialSubheader}</span>`;
       specialData.appendChild(specialText);
   
       stepDisplay.innerHTML = '';
