@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
       exponent: 0, // Dinamico
       image: 'images/amore.jpg',
       prefix: "Ecco esattamente quanto ti amo: ",
-      bigMessage: "È davvero tanto, non trovi? Se lo scrivessi, arriverebbe da Milano a Pechino!"
+      bigMessage: "È davvero tanto, non trovi? Se lo scrivessi, arriverebbe da Parma a Milano!"
     }
   ];
 

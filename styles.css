@@ -154,8 +154,16 @@ button:hover {
   p {
     font-size: 1rem;
   }
+  .step-text {
+    font-size: 1.5rem;       /* Riduci la dimensione del font per evitare overflow */
+    line-height: 1.2;        /* Riduci lo spazio verticale se necessario */
+    word-break: break-word;  /* Forza la rottura delle parole lunghe */
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
   button {
     font-size: 1rem;
     padding: 10px 20px;
   }
 }
+
