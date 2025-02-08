@@ -2,22 +2,24 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Amore Infinito</title>
+  <title>Quanto ti amo?</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Collega il file CSS -->
+  <!-- Collega il file CSS esterno -->
   <link rel="stylesheet" href="styles.css">
+  <!-- Stili aggiuntivi per il background e il testo (già definiti nel CSS esterno) -->
 </head>
 <body>
   <div class="container">
     <div class="content">
+      <!-- Elemento di background che copre interamente il contenuto -->
+      <div class="bg"></div>
+      <!-- Schermata iniziale: usata SOLO se l'utente non ha ancora premuto "Successivo".
+           Nota: il contenuto qui (titolo e descrizione) verrà mostrato finché l'utente non inizia a navigare -->
       <h1 id="title">Quanto ti amo?</h1>
-      <p id="description">
-        Ho provato a quantificarlo, ed è stato un lungo viaggio.<br>
-        Ti va di percorrere le tappe più importanti con me?
-      </p>
-      <!-- Container dove viene mostrato lo step -->
+      
+      <!-- Container in cui verrà caricato il contenuto degli step -->
       <div id="stepDisplay" class="step-display"></div>
-      <!-- Gruppo di pulsanti per navigare avanti e indietro -->
+      <!-- Gruppo di pulsanti per navigare -->
       <div class="button-group">
         <button id="prevButton" style="display: none;">Indietro</button>
         <button id="nextButton">Successivo</button>
