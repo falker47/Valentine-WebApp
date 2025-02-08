@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
   }
 
-  // Soglia per determinare se mostrare il numero completo o un messaggio personalizzato
-  const THRESHOLD_DIGITS = 25;
+  const THRESHOLD_DIGITS = 25; // Soglia per mostrare il numero per intero oppure un messaggio personalizzato
 
   // Pre-carica le immagini
   const imagePaths = [
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextButton  = document.getElementById('nextButton');
   const prevButton  = document.getElementById('prevButton');
   const stepDisplay = document.getElementById('stepDisplay');
-  const title       = document.getElementById('title'); // Global title ("Quanto ti amo?")
+  const title       = document.getElementById('title');  // Global title ("Quanto ti amo?")
   const bg          = document.querySelector('.bg');
 
   // Imposta subito il background iniziale su start.jpg
@@ -33,18 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Array degli step:
      - Lo step 0 (indice 0) è lo step iniziale merged, che contiene:
-         - image: 'images/start.jpg'
-         - content: il testo completo da mostrare all'apertura: 
+         • image: 'images/start.jpg'
+         • content: il testo completo da mostrare all'apertura:
            "Ho provato a quantificarlo, ed è stato un lungo viaggio.
             Ti va di percorrere le tappe più importanti con me?"
-       - Gli altri step (indice 1,2,3,...) sono quelli numerici e hanno:
-         - prefix: il testo da visualizzare prima della notazione, già personalizzato
-         - exponent: il valore numerico (se es. 13 per le cellule)
-         - bigMessage (opzionale): il messaggio da visualizzare se il numero supera la soglia.
+     - Gli step successivi (indice 1,2,3,...) sono gli step numerici.
+       Per ciascuno definisci:
+         • label: (usato anche per il prefix)
+         • exponent: il valore numerico (oppure 0 per lo step dinamico "amore che provo per te")
+         • image: l'immagine da usare
+         • prefix: il testo da mostrare prima della notazione scientifica
+         • bigMessage (opzionale): il messaggio personalizzato da mostrare se il numero supera la soglia
   */
   const steps = [
     {
-      // Step 0: iniziale
+      // Step 0: merged iniziale
       label: 'iniziale',
       exponent: null,
       image: 'images/start.jpg',
@@ -67,14 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
       exponent: 37,
       image: 'images/sabbia.jpg',
       prefix: "Ti amo più di quanti sono i granelli di sabbia nel mondo: ",
-      bigMessage: "Se dovessi scrivere il numero su questo schermo, sarebbe lunga come l'apertura alare di un albatros."
+      bigMessage: "Se dovessi scrivere il numero su questo schermo, mi sa che straborderebbe un po'!"
     },
     {
       label: 'amore che provo per te',
       exponent: 0, // Dinamico
       image: 'images/amore.jpg',
-      prefix: "Ti amo più di quante sono le dimostrazioni del mio amore: ",
-      bigMessage: "Se dovessi scrivere il numero su questo schermo, sarebbe lunga come la distanza da un dischetto del calcio di rigore alla porta."
+      prefix: "Ecco esattamente quanto ti amo: ",
+      bigMessage: "È davvero tanto, non trovi? Se lo scrivessi, arriverebbe da Milano a Pechino!"
     }
   ];
 
@@ -82,9 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStep = 0;
   let dynamicInterval = null;
 
-  // Appena carica la web app, mostriamo immediatamente lo step 0 (merged iniziale)
+  // Appena carica la web app, mostra subito lo step 0 (merged iniziale)
   showStep(steps[currentStep]);
-  currentStep++; // Al primo clic, si passerà allo step 1
+  currentStep++; // Al primo clic su "Successivo" verrà caricato lo step 1
 
   nextButton.addEventListener('click', () => {
     updateStep();
@@ -96,27 +98,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Funzione per aggiornare il background con effetto fade (solo opacità)
   // function updateBackground(newImage, callback) {
-  //   // Fai scomparire il background con una transizione veloce
-  //   bg.style.opacity = 0;
+  //   bg.classList.add('fade-out');
   //   setTimeout(() => {
-  //     // Aggiorna l'immagine di sfondo
   //     bg.style.backgroundImage = `url(${newImage})`;
-  //     // Fai riapparire il background
-  //     bg.style.opacity = 1;
-  //     if (callback) callback();
-  //   }, 400); // 400ms è un tempo di transizione breve
+  //     bg.classList.remove('fade-out');
+  //     bg.classList.add('fade-in');
+  //     setTimeout(() => {
+  //       bg.classList.remove('fade-in');
+  //       if (callback) callback();
+  //     }, 400);
+  //   }, 400);
   // }
   function updateBackground(newImage, callback) {
     bg.style.backgroundImage = `url(${newImage})`;
     if (callback) callback();
   }
   
-  
 
   // Funzione per creare il contenuto dello step
   // Se step.exponent è null, usa step.content direttamente.
-  // Se non lo è, usa il prefix e calcola la notazione.
-  // Se il numero (exponent+1) supera la soglia, mostra step.bigMessage (se definito), altrimenti un messaggio di default.
+  // Altrimenti, usa il prefisso fornito e genera la notazione scientifica e il numero per intero
+  // Il "secondo rigo" viene racchiuso in un <span> con margin-top:5px per creare spaziatura.
   function createStepContent(step, prefix) {
     const stepData = document.createElement('div');
     stepData.classList.add('step-data');
@@ -134,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const diffSeconds = Math.floor((now - targetDate) / 1000);
         if ((diffSeconds + 1) <= THRESHOLD_DIGITS) {
           let fullNumber = "1" + "0".repeat(diffSeconds);
-          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br>${formatNumber(fullNumber)}`;
+          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br><span style="display:block; margin-top:25px;">${formatNumber(fullNumber)}</span>`;
         } else {
           let msg = step.bigMessage ? step.bigMessage : "Se dovessi scrivere il numero, occuperebbe un'intera pagina di testo.";
-          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br>${msg}`;
+          stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(diffSeconds)}</sup><br><span style="display:block; margin-top:25px;">${msg}</span>`;
         }
       }
       updateDynamicExponent();
@@ -145,10 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if ((step.exponent + 1) <= THRESHOLD_DIGITS) {
         let fullNumber = "1" + "0".repeat(step.exponent);
-        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br>${formatNumber(fullNumber)}`;
+        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${formatNumber(fullNumber)}</span>`;
       } else {
         let msg = step.bigMessage ? step.bigMessage : "Se dovessi scrivere il numero, occuperebbe un'intera pagina di testo.";
-        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br>${msg}`;
+        stepText.innerHTML = `<strong>${prefix}</strong>10<sup>${formatNumber(step.exponent)}</sup><br><span style="display:block; margin-top:25px;">${msg}</span>`;
       }
     }
     stepData.appendChild(stepText);
@@ -177,8 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Funzione per mostrare lo step speciale finale
-  // In questo step, il global title rimane "Quanto ti amo?"
-  // Il contenuto interno mostra:
+  // In questo step il contenuto interno mostra:
   // Nel box: "È stato un bel viaggio!" a capo "Il mio amore per te cresce ogni giorno, ogni secondo."
   function showSpecialStep(imagePath, specialHeader, specialSubheader, newButtonText) {
     if (dynamicInterval) {
@@ -192,16 +193,16 @@ document.addEventListener('DOMContentLoaded', () => {
       specialData.style.zIndex = 2;
       specialData.style.height = '100%';
       specialData.style.minHeight = '100%';
-
+      
       const specialText = document.createElement('div');
       specialText.classList.add('step-text');
-      specialText.innerHTML = `<strong>${specialHeader}</strong><br>${specialSubheader}`;
+      specialText.innerHTML = `<strong>${specialHeader}</strong><br><span style="display:block; margin-top:5px;">${specialSubheader}</span>`;
       specialData.appendChild(specialText);
-
+  
       stepDisplay.innerHTML = '';
       stepDisplay.appendChild(specialData);
       stepDisplay.classList.add('fade-in');
-
+  
       title.textContent = "Quanto ti amo?"; // Global title rimane invariato
       nextButton.textContent = newButtonText;
       prevButton.style.display = 'none';
