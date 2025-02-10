@@ -9,9 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pre-carica le immagini
   const imagePaths = [
     'images/start.jpg',
+    'images/luce.jpg',
     'images/cellule.jpg',
+    'images/persone.jpg',
+    'images/big-bang.jpg',
     'images/sabbia.jpg',
     'images/stelle.jpg',
+    'images/atomi.jpg',
+    'images/prime.jpg',
     'images/amore.jpg',
     'images/end.jpg'
   ];
@@ -93,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       exponent: 26,
       image: 'images/stelle.jpg',
       coefficient: 5,
-      prefix: "Ti amo più di quanto sia il raggio dell'universo osservabile in m: ",
+      prefix: "Ti amo più di quanto sia il raggio dell'universo osservabile in metri: ",
       bigMessage:"I numeri adesso non ci stanno più nello schermo!"
     },
     {
@@ -104,6 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
       prefix: "Ti amo più di quanti sono gli atomi nell'universo: ",
       bigMessage: "Se lo scrivessi a schermo sarebbe lungo come una chitarra acustica!"
     },
+    // {
+    //   label: 'prime',
+    //   exponent: 41024320,
+    //   image: 'images/prime.jpg',
+    //   coefficient: 1,
+    //   prefix: "Ti amo più di quanto sia il più grande numero primo conosciuto: ",
+    //   bigMessage: "Se lo scrivessi, sarebbe lungo come la strada da Torino a Firenze!"
+    // },
     {
       label: 'amore che provo per te',
       exponent: 0, // Dinamico: l'esponente sarà calcolato in base al tempo
