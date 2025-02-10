@@ -43,11 +43,20 @@ html, body {
   z-index: 1;
 }
 
-/* Titolo e descrizione con sottile contorno */
-h1, p, .step-text {
+#title {
+  position: relative;
+  z-index: 9999;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
   color: #fff;
   text-shadow: 1px 1px 1px #000;
+  position: relative;
+  z-index: 2;
 }
+
 
 /* Area degli step: altezza fissa, centrato con Flexbox */
 .step-display {
