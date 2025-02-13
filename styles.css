@@ -14,6 +14,7 @@ html, body {
 /* Container principale */
 .container {
   display: flex;
+  flex-direction: column; /* Aggiunto per disporre gli elementi verticalmente */
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #1d2671, #c33764);
@@ -23,6 +24,7 @@ html, body {
   width: 100%;
   z-index: 0;
 }
+
 
 /* Box centrale */
 .content {
@@ -148,6 +150,11 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+#title {
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 9999; /* Per garantire che sia sempre visibile */
+}
 
 
 
