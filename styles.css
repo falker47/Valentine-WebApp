@@ -158,10 +158,9 @@ button:hover {
 
 
 
-/* Media query per dispositivi mobili */
 @media screen and (max-width: 768px) {
   .content {
-    padding: 20px;
+    padding: 10px 20px; /* 10px in alto e in basso, 20px ai lati */
     margin: 0 10px;
   }
   h1 {
@@ -170,16 +169,16 @@ button:hover {
   p {
     font-size: 1rem;
   }
-  .step-text {
-    font-size: 1.5rem;       /* Riduci la dimensione del font per evitare overflow */
-    line-height: 1.2;        /* Riduci lo spazio verticale se necessario */
-    word-break: break-word;  /* Forza la rottura delle parole lunghe */
-    overflow-wrap: break-word;
-    max-width: 100%;
-  }
   button {
     font-size: 1rem;
     padding: 10px 20px;
+  }
+  .step-text {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
   }
 }
 
